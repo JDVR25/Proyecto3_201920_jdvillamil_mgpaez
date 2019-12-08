@@ -12,9 +12,9 @@ public abstract class Zona
 
 	protected int id;
 
-	protected ListaSencillamenteEncadenada<Punto> coordenadas;
+	protected ListaSencillamenteEncadenada<Coordenadas> coordenadas;
 
-	public Zona(String pNombre, double pPerimetro, double pArea, int pId, ListaSencillamenteEncadenada<Punto>  pCoord)
+	public Zona(String pNombre, double pPerimetro, double pArea, int pId, ListaSencillamenteEncadenada<Coordenadas>  pCoord)
 	{
 		nombre = pNombre;
 
@@ -27,11 +27,11 @@ public abstract class Zona
 		coordenadas = pCoord;
 	}
 
-	public ListaSencillamenteEncadenada<Punto>  getCoordenadas() {
+	public ListaSencillamenteEncadenada<Coordenadas>  getCoordenadas() {
 		return coordenadas;
 	}
 
-	public void setCoordenadas(ListaSencillamenteEncadenada<Punto>  coordenadas) {
+	public void setCoordenadas(ListaSencillamenteEncadenada<Coordenadas>  coordenadas) {
 		this.coordenadas = coordenadas;
 	}
 

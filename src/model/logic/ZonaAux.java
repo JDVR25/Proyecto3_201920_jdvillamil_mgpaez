@@ -5,7 +5,7 @@ import model.data_structures.ListaSencillamenteEncadenada;
 public class ZonaAux extends Zona implements Comparable<ZonaAux>
 {
 
-	public ZonaAux(String pNombre, double pPerimetro, double pArea, int pId, ListaSencillamenteEncadenada<Punto> pCoord) 
+	public ZonaAux(String pNombre, double pPerimetro, double pArea, int pId, ListaSencillamenteEncadenada<Coordenadas> pCoord) 
 	{
 		super(pNombre, pPerimetro, pArea, pId, pCoord);
 	}

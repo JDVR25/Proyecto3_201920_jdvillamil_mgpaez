@@ -1,4 +1,4 @@
-package model.logic;
+package model.graph_alg4;
 /******************************************************************************
  *  Compilation:  javac Graph.java        
  *  Execution:    java Graph input.txt
@@ -68,21 +68,7 @@ public class Graph
     private final int V;
     private int E;
     private Bag<Integer>[] adj;
-    
-    /**
-     * La distancia en kilometros entre las localizaciones geográficas de los vértices que conecta.
-     */
-    private int costoDistanciaHarversine; 
-    
-    /**
-     * El tiempo de viaje entre sus vértices
-     */
-    private int tiempoViaje; 
-    
-    /**
-     * Velocidad del arco
-     */
-    private int velocidad; 
+
     
     
     /**

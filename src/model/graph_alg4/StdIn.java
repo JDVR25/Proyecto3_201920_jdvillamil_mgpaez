@@ -1,4 +1,4 @@
-package model.logic;
+package model.graph_alg4;
 /******************************************************************************
 
  *  Compilation:  javac StdIn.java

@@ -1,4 +1,4 @@
-package model.logic; 
+package model.graph_alg4; 
 /******************************************************************************
  *  Compilation:  javac CC.java
  *  Execution:    java CC filename.txt
@@ -29,7 +29,6 @@ package model.logic;
  *        DFS ala NonrecursiveDFS.java.
  *
  ******************************************************************************/
-
 
 /**
  *  The {@code CC} class represents a data type for 

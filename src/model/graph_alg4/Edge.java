@@ -1,4 +1,4 @@
-package model.logic;
+package model.graph_alg4;
 /******************************************************************************
  *  Compilation:  javac Edge.java
  *  Execution:    java Edge
@@ -7,7 +7,6 @@ package model.logic;
  *  Immutable weighted edge.
  *
  ******************************************************************************/
-
 
 /**
  *  The {@code Edge} class represents a weighted edge in an 
@@ -28,6 +27,21 @@ public class Edge implements Comparable<Edge> {
     private final int v;
     private final int w;
     private final double weight;
+    
+    /**
+     * La distancia en kilometros entre las localizaciones geográficas de los vértices que conecta.
+     */
+    private double costoDistanciaHarversine; 
+    
+    /**
+     * El tiempo de viaje entre sus vértices
+     */
+    private double tiempoViaje; 
+    
+    /**
+     * Velocidad del arco
+     */
+    private double velocidad; 
 
     /**
      * Initializes an edge between vertices {@code v} and {@code w} of

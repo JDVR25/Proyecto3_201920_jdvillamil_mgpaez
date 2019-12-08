@@ -1,4 +1,4 @@
-package model.logic;
+package model.graph_alg4;
 /******************************************************************************
 
  *  Compilation:  javac LinearProbingHashST.java
@@ -9,7 +9,6 @@ package model.logic;
  *  Symbol-table implementation with linear-probing hash table.
  *
  ******************************************************************************/
-
 
 /**
  *  The {@code LinearProbingHashST} class represents a symbol table of generic

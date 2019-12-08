@@ -1,12 +1,12 @@
 package model.logic;
 
-public class Punto
+public class Coordenadas
 {
 	private double longitud;
 	
 	private double latitud;
 	
-	public Punto(double pLong, double pLatitud)
+	public Coordenadas(double pLong, double pLatitud)
 	{
 		longitud = pLong;
 		

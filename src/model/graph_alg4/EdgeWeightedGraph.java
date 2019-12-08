@@ -1,4 +1,4 @@
-package model.logic;
+package model.graph_alg4;
 /******************************************************************************
  *  Compilation:  javac EdgeWeightedGraph.java
  *  Execution:    java EdgeWeightedGraph filename.txt
@@ -22,7 +22,6 @@ package model.logic;
  *  7: 2-7 0.34000  1-7 0.19000  0-7 0.16000  5-7 0.28000  4-7 0.37000
  *
  ******************************************************************************/
-
 
 /**
  *  The {@code EdgeWeightedGraph} class represents an edge-weighted

@@ -22,6 +22,7 @@ import model.data_structures.MaxHeapCP;
 import model.data_structures.Nodo;
 import model.data_structures.RedBlackBST;
 import model.data_structures.TablaHashSeparateChaining;
+import model.graph_alg4.EdgeWeightedGraph;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -49,9 +50,8 @@ public class MVCModelo
 	private ListaSencillamenteEncadenada<NodoMallaVial> nodos;
 
 	private ListaSencillamenteEncadenada<Zona> zonas;
-	//Para el 1A usar Tabla de hash separate chaining, que sea de tamano 27 para facilitar las cosas, la llave sera la letra inicial necesarios add set y getset
-	//En el 2A Usar cola de prioridad para los nodos
-	//Para el 3A usar arbloes binarios.
+	
+	private EdgeWeightedGraph grafoCiudad;
 
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
@@ -202,7 +202,7 @@ public class MVCModelo
 
 			for (int i = 0; i < arrZonas.size(); i++)
 			{
-				ListaSencillamenteEncadenada<Punto> coordenadas = new ListaSencillamenteEncadenada<Punto>();
+				ListaSencillamenteEncadenada<Coordenadas> coordenadas = new ListaSencillamenteEncadenada<Coordenadas>();
 				JsonObject zona = arrZonas.get(i).getAsJsonObject();
 
 				JsonObject geometria = zona.getAsJsonObject("geometry");
@@ -214,7 +214,7 @@ public class MVCModelo
 					JsonArray posicion = puntos.get(e).getAsJsonArray();
 					double longitud = posicion.get(0).getAsDouble();
 					double latitud = posicion.get(1).getAsDouble();
-					coordenadas.addLast(new Punto(longitud, latitud));
+					coordenadas.addLast(new Coordenadas(longitud, latitud));
 				}
 				JsonObject datos = zona.getAsJsonObject("properties");
 				int id = datos.get("MOVEMENT_ID").getAsInt();
@@ -256,25 +256,30 @@ public class MVCModelo
 	{
 		return zonas.size();
 	}
+	
+	public EdgeWeightedGraph darGrafo()
+	{
+		return grafoCiudad;
+	}
 
 	//Parte A
 	//Requerimientos 4,5 y 6 
 	// Hecho por Juan David Villamil 
 	/**
-	 * Encontrar el camino de costo mínimo 
-	 * para un viaje entre dos localizaciones geográficas de la ciudad
+	 * Encontrar el camino de costo mÃ­nimo 
+	 * para un viaje entre dos localizaciones geogrÃ¡ficas de la ciudad
 	 * Requerimiento 4 
 	 * @param origen del viaje.
 	 * @param destino del viaje. 
 	 */
-	public int caminoCostoMinimo(int origen, int destino)
+	public int caminoCostoMinimo(Coordenadas origen, Coordenadas destino)
 	{
 		return 0; 
 	}
 
 	/**
-	 * Determinar los n vértices con menor velocidad promedio en la ciudad de Bogotá.
-	 * Siendo la velocidad promedio de un vértice v, el promedio de las velocidades de todos sus arcos.
+	 * Determinar los n vÃ©rtices con menor velocidad promedio en la ciudad de BogotÃ¡.
+	 * Siendo la velocidad promedio de un vÃ©rtice v, el promedio de las velocidades de todos sus arcos.
 	 * Requerimiento 5
 	 * @param latitud
 	 * @param longitud
@@ -287,9 +292,9 @@ public class MVCModelo
 	}
 
 	/**
-	 * Calcular un árbol de expansión mínima con el criterio de distancia, 
+	 * Calcular un Ã¡rbol de expansiÃ³n mÃ­nima con el criterio de distancia, 
 	 * utilizando el algoritmo de Prim, aplicado al componente conectado (subgrafo)
-	 * más grande de la malla vial de Bogotá.
+	 * mÃ¡s grande de la malla vial de BogotÃ¡.
 	 * Requerimiento 6
 	 * @return
 	 */
@@ -304,120 +309,120 @@ public class MVCModelo
 	// Hecho por Juan David Villamil
 	/**
 	 * Encontrar el camino de menor costo (menor distancia Haversine)
-	 * para un viaje entre dos localizaciones geográficas de la ciudad
+	 * para un viaje entre dos localizaciones geogrÃ¡ficas de la ciudad
 	 * @param origen
 	 * @param destina
-	 * @return las N zonas que están más al norte. 
+	 * @return las N zonas que estaÌ�n maÌ�s al norte. 
 	 */
 	public int caminoMenorCosto(int origen, int destino)
 	{
-
-
+		return destino;
 	}
 
 	/**
-	 * Calcular un árbol de expansión mínima (MST) con criterio distancia, utilizando el algoritmo de Kruskal,
-	 *  aplicado al componente conectado (subgrafo) más grande de la malla vial de Bogotá.
+	 * Calcular un Ã¡rbol de expansiÃ³n mÃ­nima (MST) con criterio distancia, utilizando el algoritmo de Kruskal,
+	 *  aplicado al componente conectado (subgrafo) mÃ¡s grande de la malla vial de BogotÃ¡.
 	 */
 	public ListaSencillamenteEncadenada<NodoZona> MSTKruscal(int T)
 	{
+		return null;
 		
 	}
-
-	/**
-	 * Buscar los tiempos de espera que tienen una desviación 
-	 * estándar en un rango dado y que son del primer trimestre del 2018.
-	 * @param minimo
-	 * @param maximo
-	 * @return
-	 */
-	public ListaSencillamenteEncadenada<Viaje> tiemposPrimerTrimestreConDesvEstandEnRango(double minimo, double maximo)
-	{
-		RedBlackBST<String, Viaje> arbol = new RedBlackBST<String, Viaje>();
-		ListaSencillamenteEncadenada<Viaje> resp = new ListaSencillamenteEncadenada<Viaje>();
-		for(Viaje temp : meses)
-		{
-			arbol.put(temp.darDesviacionTiempo() + "-" + temp.darIDOrigen() + "-" + temp.darIdDestino(), temp);
-		}
-		Iterator<Viaje> it = arbol.valuesInRange(minimo + "", maximo + "-999999999" + "-999999999");
-		while(it.hasNext())
-		{
-			Viaje elemento = it.next();
-			if(elemento.darHoraOMesODia() <= 3 && elemento.darHoraOMesODia() > 0)
-			{
-				resp.addLast(elemento);
-			}
-		}
-		return resp;
-	}
+//
+//	/**
+//	 * Buscar los tiempos de espera que tienen una desviaciÃ³n 
+//	 * estÃ¡ndar en un rango dado y que son del primer trimestre del 2018.
+//	 * @param minimo
+//	 * @param maximo
+//	 * @return
+//	 */
+//	public ListaSencillamenteEncadenada<Viaje> tiemposPrimerTrimestreConDesvEstandEnRango(double minimo, double maximo)
+//	{
+//		RedBlackBST<String, Viaje> arbol = new RedBlackBST<String, Viaje>();
+//		ListaSencillamenteEncadenada<Viaje> resp = new ListaSencillamenteEncadenada<Viaje>();
+//		for(Viaje temp : meses)
+//		{
+//			arbol.put(temp.darDesviacionTiempo() + "-" + temp.darIDOrigen() + "-" + temp.darIdDestino(), temp);
+//		}
+//		Iterator<Viaje> it = arbol.valuesInRange(minimo + "", maximo + "-999999999" + "-999999999");
+//		while(it.hasNext())
+//		{
+//			Viaje elemento = it.next();
+//			if(elemento.darHoraOMesODia() <= 3 && elemento.darHoraOMesODia() > 0)
+//			{
+//				resp.addLast(elemento);
+//			}
+//		}
+//		return resp;
+//	}
 
 	//Parte C
-	public ListaSencillamenteEncadenada<Viaje> darTiemposZonaOrigenHora(int idOrigen, int hora)
-	{
-		ListaSencillamenteEncadenada<Viaje> respuesta = new ListaSencillamenteEncadenada<Viaje>();
-		TablaHashSeparateChaining<String, Viaje> hashTable = new TablaHashSeparateChaining<String, Viaje>();
-		for(Viaje temp : horas)
-		{
-			hashTable.put(temp.darIDOrigen() + "-" + temp.darHoraOMesODia() + "-" + temp.darIdDestino(), temp);
-		}
-		Iterator<String> llaves = hashTable.keys();
-		while(llaves.hasNext())
-		{
-			String cadena = llaves.next();
-			if(cadena.startsWith(idOrigen + "-" + hora))
-			{
-				respuesta.addLast(hashTable.get(cadena));
-			}
-		}
-		return respuesta;
-	}
-
-	public Iterator<Viaje> darTiemposZonaDestRangoHoras(int idDestino, int horaMin, int horaMax)
-	{
-		RedBlackBST<String, Viaje> arbol = new RedBlackBST<String, Viaje>();
-		for(Viaje temp : horas)
-		{
-			arbol.put(temp.darIdDestino() + "-" + temp.darHoraOMesODia() + "-" + temp.darIDOrigen(), temp);
-		}
-		Iterator<Viaje> resp = arbol.valuesInRange(idDestino + "-" + horaMin, idDestino + "-" + horaMax + "-999999");
-		return resp;
-	}
-
-	public MaxHeapCP<ZonaAux> zonasMasNodos()
-	{
-		MaxHeapCP<ZonaAux> respuesta = new MaxHeapCP<ZonaAux>();
-		for(Zona laZona: zonas)
-		{
-			respuesta.agregar((ZonaAux)laZona);
-		}
-
-		return respuesta;
-	}
-
-	public ListaSencillamenteEncadenada<Pair<Integer, Double>> datosFaltantesPrimerSemestre()
-	{
-		int numDatosComp = 48*darNumZonas();
-		MaxHeapCP<ZonaAux4> temp = new MaxHeapCP<ZonaAux4>();
-		ListaSencillamenteEncadenada<Pair<Integer, Double>> resp = new ListaSencillamenteEncadenada<Pair<Integer,Double>>();
-		for(Zona laZona: zonas)
-		{
-			temp.agregar((ZonaAux4)laZona);
-		}
-		int actual = 1;
-		int conteo = 0;
-		while(!temp.esVacia())
-		{
-			Zona laZona = temp.sacarMax();
-			if(actual != laZona.getId())
-			{
-				double porcentaje = (1 - (conteo/numDatosComp))*100;
-				Pair<Integer, Double> datos = new Pair<Integer, Double>(actual, porcentaje);
-				resp.addLast(datos);
-				actual++;
-				conteo = 0;
-			}
-			conteo++;
-		}
-		return resp;
-	}
+//	public ListaSencillamenteEncadenada<Viaje> darTiemposZonaOrigenHora(int idOrigen, int hora)
+//	{
+//		ListaSencillamenteEncadenada<Viaje> respuesta = new ListaSencillamenteEncadenada<Viaje>();
+//		TablaHashSeparateChaining<String, Viaje> hashTable = new TablaHashSeparateChaining<String, Viaje>();
+//		for(Viaje temp : horas)
+//		{
+//			hashTable.put(temp.darIDOrigen() + "-" + temp.darHoraOMesODia() + "-" + temp.darIdDestino(), temp);
+//		}
+//		Iterator<String> llaves = hashTable.keys();
+//		while(llaves.hasNext())
+//		{
+//			String cadena = llaves.next();
+//			if(cadena.startsWith(idOrigen + "-" + hora))
+//			{
+//				respuesta.addLast(hashTable.get(cadena));
+//			}
+//		}
+//		return respuesta;
+//	}
+//
+//	public Iterator<Viaje> darTiemposZonaDestRangoHoras(int idDestino, int horaMin, int horaMax)
+//	{
+//		RedBlackBST<String, Viaje> arbol = new RedBlackBST<String, Viaje>();
+//		for(Viaje temp : horas)
+//		{
+//			arbol.put(temp.darIdDestino() + "-" + temp.darHoraOMesODia() + "-" + temp.darIDOrigen(), temp);
+//		}
+//		Iterator<Viaje> resp = arbol.valuesInRange(idDestino + "-" + horaMin, idDestino + "-" + horaMax + "-999999");
+//		return resp;
+//	}
+//
+//	public MaxHeapCP<ZonaAux> zonasMasNodos()
+//	{
+//		MaxHeapCP<ZonaAux> respuesta = new MaxHeapCP<ZonaAux>();
+//		for(Zona laZona: zonas)
+//		{
+//			respuesta.agregar((ZonaAux)laZona);
+//		}
+//
+//		return respuesta;
+//	}
+//
+//	public ListaSencillamenteEncadenada<Pair<Integer, Double>> datosFaltantesPrimerSemestre()
+//	{
+//		int numDatosComp = 48*darNumZonas();
+//		MaxHeapCP<ZonaAux4> temp = new MaxHeapCP<ZonaAux4>();
+//		ListaSencillamenteEncadenada<Pair<Integer, Double>> resp = new ListaSencillamenteEncadenada<Pair<Integer,Double>>();
+//		for(Zona laZona: zonas)
+//		{
+//			temp.agregar((ZonaAux4)laZona);
+//		}
+//		int actual = 1;
+//		int conteo = 0;
+//		while(!temp.esVacia())
+//		{
+//			Zona laZona = temp.sacarMax();
+//			if(actual != laZona.getId())
+//			{
+//				double porcentaje = (1 - (conteo/numDatosComp))*100;
+//				Pair<Integer, Double> datos = new Pair<Integer, Double>(actual, porcentaje);
+//				resp.addLast(datos);
+//				actual++;
+//				conteo = 0;
+//			}
+//			conteo++;
+//		}
+//		return resp;
+//	}
 }

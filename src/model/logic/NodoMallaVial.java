@@ -4,13 +4,13 @@ public class NodoMallaVial implements Comparable<NodoMallaVial>
 {
 	private int id;
 	
-	private Punto coordenada;
+	private Coordenadas coordenada;
 
 	public NodoMallaVial(int pId, double pLongitud, double pLatitud)
 	{
 		id = pId;
 		
-		coordenada = new Punto(pLongitud, pLatitud);
+		coordenada = new Coordenadas(pLongitud, pLatitud);
 	}
 	
 	public int darId()
@@ -18,7 +18,7 @@ public class NodoMallaVial implements Comparable<NodoMallaVial>
 		return id;
 	}
 	
-	public Punto darCoordenada()
+	public Coordenadas darCoordenada()
 	{
 		return coordenada;
 	}

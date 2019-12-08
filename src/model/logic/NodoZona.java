@@ -4,13 +4,13 @@ public class NodoZona
 {
 	private String zona;
 	
-	private Punto coordenada;
+	private Coordenadas coordenada;
 
 	public NodoZona(String pZona, double pLongitud, double pLatitud)
 	{
 		zona = pZona;
 		
-		coordenada = new Punto(pLongitud, pLatitud);
+		coordenada = new Coordenadas(pLongitud, pLatitud);
 	}
 	
 	public String darZona()
@@ -18,7 +18,7 @@ public class NodoZona
 		return zona;
 	}
 	
-	public Punto darCoordenada()
+	public Coordenadas darCoordenada()
 	{
 		return coordenada;
 	}
