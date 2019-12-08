@@ -189,47 +189,47 @@ public class MVCModelo
 
 		}
 	}
-	
+
 	public void cargarDatosZonas()
 	{
 		try
-        {
-            BufferedReader br = new BufferedReader(new FileReader("./data/bogota_cadastral.json"));
-            JsonElement todo = new JsonParser().parse(br);
-            JsonObject general = todo.getAsJsonObject();
-            JsonArray arrZonas = general.getAsJsonArray("features");
+		{
+			BufferedReader br = new BufferedReader(new FileReader("./data/bogota_cadastral.json"));
+			JsonElement todo = new JsonParser().parse(br);
+			JsonObject general = todo.getAsJsonObject();
+			JsonArray arrZonas = general.getAsJsonArray("features");
 
 
-            for (int i = 0; i < arrZonas.size(); i++)
-            {
-                ListaSencillamenteEncadenada<Punto> coordenadas = new ListaSencillamenteEncadenada<Punto>();
-                JsonObject zona = arrZonas.get(i).getAsJsonObject();
-                
-                JsonObject geometria = zona.getAsJsonObject("geometry");
-                JsonArray puntos = geometria.getAsJsonArray("coordinates");
-                puntos = puntos.get(0).getAsJsonArray();
-                puntos = puntos.get(0).getAsJsonArray();
-                for (int e = 0; e < puntos.size(); e++)
-                {
-                    JsonArray posicion = puntos.get(e).getAsJsonArray();
-                    double longitud = posicion.get(0).getAsDouble();
-                    double latitud = posicion.get(1).getAsDouble();
-                    coordenadas.addLast(new Punto(longitud, latitud));
-                }
-                JsonObject datos = zona.getAsJsonObject("properties");
-                int id = datos.get("MOVEMENT_ID").getAsInt();
-                String nombre = datos.get("scanombre").getAsString();
-                double perimetro = datos.get("shape_leng").getAsDouble();
-                double area = datos.get("shape_area").getAsDouble();
-                Zona cadastral = new ZonaAux(nombre, perimetro, area, id, coordenadas);
-                zonas.addLast(cadastral);
-            }
+			for (int i = 0; i < arrZonas.size(); i++)
+			{
+				ListaSencillamenteEncadenada<Punto> coordenadas = new ListaSencillamenteEncadenada<Punto>();
+				JsonObject zona = arrZonas.get(i).getAsJsonObject();
 
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+				JsonObject geometria = zona.getAsJsonObject("geometry");
+				JsonArray puntos = geometria.getAsJsonArray("coordinates");
+				puntos = puntos.get(0).getAsJsonArray();
+				puntos = puntos.get(0).getAsJsonArray();
+				for (int e = 0; e < puntos.size(); e++)
+				{
+					JsonArray posicion = puntos.get(e).getAsJsonArray();
+					double longitud = posicion.get(0).getAsDouble();
+					double latitud = posicion.get(1).getAsDouble();
+					coordenadas.addLast(new Punto(longitud, latitud));
+				}
+				JsonObject datos = zona.getAsJsonObject("properties");
+				int id = datos.get("MOVEMENT_ID").getAsInt();
+				String nombre = datos.get("scanombre").getAsString();
+				double perimetro = datos.get("shape_leng").getAsDouble();
+				double area = datos.get("shape_area").getAsDouble();
+				Zona cadastral = new ZonaAux(nombre, perimetro, area, id, coordenadas);
+				zonas.addLast(cadastral);
+			}
+
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public int darNumViajesMes()
@@ -258,88 +258,86 @@ public class MVCModelo
 	}
 
 	//Parte A
-	public MaxHeapCP<ListaSencillamenteEncadenada<Zona>> letrasMasFrecuentesNombreZona()
+	//Requerimientos 4,5 y 6 
+	// Hecho por Juan David Villamil 
+	/**
+	 * Encontrar el camino de costo mínimo 
+	 * para un viaje entre dos localizaciones geográficas de la ciudad
+	 * Requerimiento 4 
+	 * @param origen del viaje.
+	 * @param destino del viaje. 
+	 */
+	public int caminoCostoMinimo(int origen, int destino)
 	{
-		MaxHeapCP<ZonaAux1> temp = new MaxHeapCP<ZonaAux1>();
-		MaxHeapCP<ListaSencillamenteEncadenada<Zona>> respuesta = new MaxHeapCP<ListaSencillamenteEncadenada<Zona>>();
-		for(Zona laZona: zonas)
-		{
-			temp.agregar((ZonaAux1) laZona);
-		}
-		for(char i = 'a'; i <= 'z'; i = (char) (i +1))
-		{
-			ListaSencillamenteEncadenada<Zona> listaZonas = new ListaSencillamenteEncadenada<Zona>();
-			boolean listo = false;
-			while(!listo && !temp.esVacia())
-			{
-				Zona laZona = temp.sacarMax();
-				if(laZona.getNombre().charAt(0) == i)
-				{
-					listaZonas.addLast(laZona);
-				}
-				else
-				{
-					listo = true;
-				}
-			}
-			respuesta.agregar(listaZonas);
-		}
-		return respuesta;
+		return 0; 
 	}
 
-	public ListaSencillamenteEncadenada<NodoZona> darNodosDelimitantesDeZona(double latitud, double longitud)
+	/**
+	 * Determinar los n vértices con menor velocidad promedio en la ciudad de Bogotá.
+	 * Siendo la velocidad promedio de un vértice v, el promedio de las velocidades de todos sus arcos.
+	 * Requerimiento 5
+	 * @param latitud
+	 * @param longitud
+	 * @return lista con los vertices 
+	 */
+	public ListaSencillamenteEncadenada<NodoZona> menoVelocidadPromedio(int n)
 	{
-		double latitudTrun = latitud;
-		latitudTrun=latitudTrun*100;
-		latitudTrun = (int)latitudTrun;
-		latitudTrun = latitudTrun/100;
-
-		double longitudTrun = longitud;
-		longitudTrun=longitudTrun*100;
-		longitudTrun = (int)longitudTrun;
-		longitudTrun = longitudTrun/100;
-
-		ListaSencillamenteEncadenada<NodoZona> respuesta = new ListaSencillamenteEncadenada<NodoZona>();
-
-		TablaHashSeparateChaining<String, NodoZona> hashTable = new TablaHashSeparateChaining<String, NodoZona>();
-		for(Zona laZona: zonas)
-		{
-			for(Punto point : laZona.getCoordenadas())
-			{
-				NodoZona nuevo = new NodoZona(laZona.getNombre(), point.getLongitud(), point.getLatitud());
-				hashTable.put(point.toString() + "-" + laZona.getNombre(), nuevo);
-			}
-		}
-		Iterator<String> llaves = hashTable.keys();
-		while(llaves.hasNext())
-		{
-			String cadena = llaves.next();
-			String[] info = cadena.split("-");
-			double latitudNodo = Double.parseDouble(info[0]);
-			latitudNodo = latitudNodo*100;
-			latitudNodo = (int)latitudNodo;
-			latitudNodo = latitudNodo/100;
-
-			double longitudNodo = Double.parseDouble(info[1]);
-			longitudNodo = longitudNodo*100;
-			longitudNodo = (int)longitudNodo;
-			longitudNodo = longitudNodo/100;
-
-			if(latitudTrun == latitudNodo && longitudTrun == longitudNodo)
-			{
-				respuesta.addLast(hashTable.get(cadena));
-			}
-		}
-		return respuesta;
+		ListaSencillamenteEncadenada<NodoZona> hello = new ListaSencillamenteEncadenada<NodoZona>(); 
+		return hello; 
 	}
 
-	public ListaSencillamenteEncadenada<Viaje> tiemposPrimerTrimestreDentroDeRango(double minimo, double maximo)
+	/**
+	 * Calcular un árbol de expansión mínima con el criterio de distancia, 
+	 * utilizando el algoritmo de Prim, aplicado al componente conectado (subgrafo)
+	 * más grande de la malla vial de Bogotá.
+	 * Requerimiento 6
+	 * @return
+	 */
+
+	public int tiemposPrimerTrimestreDentroDeRango()
+	{
+		return 0; 
+	}
+
+	//Parte b
+	//Requerimientos 7,8 y 9 
+	// Hecho por Juan David Villamil
+	/**
+	 * Encontrar el camino de menor costo (menor distancia Haversine)
+	 * para un viaje entre dos localizaciones geográficas de la ciudad
+	 * @param origen
+	 * @param destina
+	 * @return las N zonas que están más al norte. 
+	 */
+	public int caminoMenorCosto(int origen, int destino)
+	{
+
+
+	}
+
+	/**
+	 * Calcular un árbol de expansión mínima (MST) con criterio distancia, utilizando el algoritmo de Kruskal,
+	 *  aplicado al componente conectado (subgrafo) más grande de la malla vial de Bogotá.
+	 */
+	public ListaSencillamenteEncadenada<NodoZona> MSTKruscal(int T)
+	{
+		
+	}
+
+	/**
+	 * Buscar los tiempos de espera que tienen una desviación 
+	 * estándar en un rango dado y que son del primer trimestre del 2018.
+	 * @param minimo
+	 * @param maximo
+	 * @return
+	 */
+	public ListaSencillamenteEncadenada<Viaje> tiemposPrimerTrimestreConDesvEstandEnRango(double minimo, double maximo)
 	{
 		RedBlackBST<String, Viaje> arbol = new RedBlackBST<String, Viaje>();
 		ListaSencillamenteEncadenada<Viaje> resp = new ListaSencillamenteEncadenada<Viaje>();
 		for(Viaje temp : meses)
 		{
-			arbol.put(temp.darTiempoViaje() + "-" + temp.darIDOrigen() + "-" + temp.darIdDestino(), temp);
+			arbol.put(temp.darDesviacionTiempo() + "-" + temp.darIDOrigen() + "-" + temp.darIdDestino(), temp);
 		}
 		Iterator<Viaje> it = arbol.valuesInRange(minimo + "", maximo + "-999999999" + "-999999999");
 		while(it.hasNext())
@@ -352,127 +350,6 @@ public class MVCModelo
 		}
 		return resp;
 	}
-
-	//Parte B
-		/**
-		 * Mostrar las zonas ordenadas desde las que 
-		 * estén más al norte. De cada zona se debe imprimir el 
-		 * nombre y la (latitud, longitud) de su punto más al norte.
-		 * @param n es un valor de entrada
-		 * @return las N zonas que están más al norte. 
-		 */
-		public MaxHeapCP<ListaSencillamenteEncadenada<Zona>> darZonasMasAlNorte(int n)
-		{
-			MaxHeapCP<ZonaAux1> meanWhile = new MaxHeapCP<ZonaAux1>();
-			MaxHeapCP<ListaSencillamenteEncadenada<Zona>> answer = new MaxHeapCP<ListaSencillamenteEncadenada<Zona>>();
-			
-			for(Zona laZona: zonas)
-			{
-				meanWhile.agregar((ZonaAux1) laZona);
-			}
-			
-			int howManyZones = 0;
-			
-			for(int i = 0; i < zonas.size() && howManyZones < n; i++)
-			{
-				ListaSencillamenteEncadenada<Zona> listaZonas = zonas;
-				ListaSencillamenteEncadenada<Punto> maxCoordenadas= zonas.get(i).getCoordenadas();
-				
-				for (int j = 0; j < listaZonas.size(); j++ )
-				{
-					if((maxCoordenadas.compareTo(listaZonas.get(j).getCoordenadas())) > 0 && i !=j)
-						{
-							maxCoordenadas = listaZonas.get(j).getCoordenadas();
-							howManyZones++;
-						}
-				}
-				
-				answer.agregar(maxCoordenadas);
-			}
-			return answer;
-		}
-
-		/**
-		 * Dado una latitud y una longitud, 
-		 * se deben mostrar todos los nodos 
-		 * que tengan esas mismas latitud y longitud 
-		 * truncando a 2 cifras decimales.
-		 * @param latitud
-		 * @param longitud
-		 * @return
-		 */
-		public ListaSencillamenteEncadenada<NodoZona> darNodosMallaVial(double latitud, double longitud)
-		{
-			double latitudTrun = latitud;
-			latitudTrun=latitudTrun*10;
-			latitudTrun = (int)latitudTrun;
-			latitudTrun = latitudTrun/10;
-
-			double longitudTrun = longitud;
-			longitudTrun=longitudTrun*10;
-			longitudTrun = (int)longitudTrun;
-			longitudTrun = longitudTrun/10;
-
-			ListaSencillamenteEncadenada<NodoZona> respuesta = new ListaSencillamenteEncadenada<NodoZona>();
-
-			TablaHashSeparateChaining<String, NodoZona> hashTable = new TablaHashSeparateChaining<String, NodoZona>();
-			for(Zona laZona: zonas)
-			{
-				for(Punto point : laZona.getCoordenadas())
-				{
-					NodoZona nuevo = new NodoZona(laZona.getNombre(), point.getLongitud(), point.getLatitud());
-					hashTable.put(point.toString() + "-" + laZona.getNombre(), nuevo);
-				}
-			}
-			Iterator<String> llaves = hashTable.keys();
-			while(llaves.hasNext())
-			{
-				String cadena = llaves.next();
-				String[] info = cadena.split("-");
-				double latitudNodo = Double.parseDouble(info[0]);
-				latitudNodo = latitudNodo*10;
-				latitudNodo = (int)latitudNodo;
-				latitudNodo = latitudNodo/10;
-
-				double longitudNodo = Double.parseDouble(info[1]);
-				longitudNodo = longitudNodo*10;
-				longitudNodo = (int)longitudNodo;
-				longitudNodo = longitudNodo/10;
-
-				if(latitudTrun == latitudNodo && longitudTrun == longitudNodo)
-				{
-					respuesta.addLast(hashTable.get(cadena));
-				}
-			}
-			return respuesta;
-		}
-
-		/**
-		 * Buscar los tiempos de espera que tienen una desviación 
-		 * estándar en un rango dado y que son del primer trimestre del 2018.
-		 * @param minimo
-		 * @param maximo
-		 * @return
-		 */
-		public ListaSencillamenteEncadenada<Viaje> tiemposPrimerTrimestreConDesvEstandEnRango(double minimo, double maximo)
-		{
-			RedBlackBST<String, Viaje> arbol = new RedBlackBST<String, Viaje>();
-			ListaSencillamenteEncadenada<Viaje> resp = new ListaSencillamenteEncadenada<Viaje>();
-			for(Viaje temp : meses)
-			{
-				arbol.put(temp.darDesviacionTiempo() + "-" + temp.darIDOrigen() + "-" + temp.darIdDestino(), temp);
-			}
-			Iterator<Viaje> it = arbol.valuesInRange(minimo + "", maximo + "-999999999" + "-999999999");
-			while(it.hasNext())
-			{
-				Viaje elemento = it.next();
-				if(elemento.darHoraOMesODia() <= 3 && elemento.darHoraOMesODia() > 0)
-				{
-					resp.addLast(elemento);
-				}
-			}
-			return resp;
-		}
 
 	//Parte C
 	public ListaSencillamenteEncadenada<Viaje> darTiemposZonaOrigenHora(int idOrigen, int hora)
