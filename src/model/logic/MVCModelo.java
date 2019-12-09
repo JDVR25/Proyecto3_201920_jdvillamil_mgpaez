@@ -20,6 +20,7 @@ import model.algoritmos_grafos_alg4.DijkstraSP;
 import model.algoritmos_grafos_alg4.DijkstraSPReq4;
 import model.algoritmos_grafos_alg4.IndexMinPQ;
 import model.algoritmos_grafos_alg4.PrimMST;
+import model.algoritmos_grafos_alg4.PrimMSTReq6;
 import model.data_structures.IEstructura;
 import model.data_structures.ListaSencillamenteEncadenada;
 import model.data_structures.MaxHeapCP;
@@ -341,7 +342,7 @@ public class MVCModelo
 	 * @return
 	 */
 
-	public PrimMST mstDist()
+	public PrimMSTReq6 mstDist()
 	{
 		CC componentes = new CC(grafoCiudad);
 		int id = -1;
@@ -385,7 +386,7 @@ public class MVCModelo
 				}
 			}
 		}
-		return new PrimMST(arbol); 
+		return new PrimMSTReq6(arbol); 
 	}
 
 	//Parte b
