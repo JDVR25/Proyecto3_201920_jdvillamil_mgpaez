@@ -152,7 +152,7 @@ public class DijkstraSPReq4 {
      *         as an iterable of edges, and {@code null} if no such path
      * @throws IllegalArgumentException unless {@code 0 <= v < V}
      */
-    public Iterable<Edge> pathTo(int v) {
+    public Stack<Edge> pathTo(int v) {
         validateVertex(v);
         if (!hasPathTo(v)) return null;
         Stack<Edge> path = new Stack<Edge>();
