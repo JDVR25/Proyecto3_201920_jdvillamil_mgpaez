@@ -71,6 +71,18 @@ public class Edge implements Comparable<Edge> {
     public double weight() {
         return weight;
     }
+    
+    public double costoDistanciaHarversine() {
+        return costoDistanciaHarversine;
+    }
+    
+    public double tiempoViaje() {
+        return tiempoViaje;
+    }
+    
+    public double velocidad() {
+        return velocidad;
+    }
 
     /**
      * Returns either endpoint of this edge.

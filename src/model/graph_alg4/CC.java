@@ -147,6 +147,10 @@ public class CC {
         validateVertex(v);
         return size[id[v]];
     }
+    
+    public int size2(int id) {
+        return size[id];
+    }
 
     /**
      * Returns the number of connected components in the graph {@code G}.

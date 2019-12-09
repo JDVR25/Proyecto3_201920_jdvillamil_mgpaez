@@ -16,12 +16,18 @@ import java.util.List;
 import com.opencsv.CSVReader;
 
 import javafx.util.Pair;
+import model.algoritmos_grafos_alg4.DijkstraSP;
+import model.algoritmos_grafos_alg4.DijkstraSPReq4;
+import model.algoritmos_grafos_alg4.IndexMinPQ;
+import model.algoritmos_grafos_alg4.PrimMST;
 import model.data_structures.IEstructura;
 import model.data_structures.ListaSencillamenteEncadenada;
 import model.data_structures.MaxHeapCP;
 import model.data_structures.Nodo;
 import model.data_structures.RedBlackBST;
 import model.data_structures.TablaHashSeparateChaining;
+import model.graph_alg4.CC;
+import model.graph_alg4.Edge;
 import model.graph_alg4.EdgeWeightedGraph;
 
 import com.google.gson.Gson;
@@ -50,7 +56,7 @@ public class MVCModelo
 	private ListaSencillamenteEncadenada<NodoMallaVial> nodos;
 
 	private ListaSencillamenteEncadenada<Zona> zonas;
-	
+
 	private EdgeWeightedGraph grafoCiudad;
 
 	/**
@@ -155,7 +161,7 @@ public class MVCModelo
 		CSVReader reader = null;
 		try
 		{
-			reader = new CSVReader(new FileReader("./data/Nodes_of_red_vial-wgs84_shp.txt"));
+			reader = new CSVReader(new FileReader("./data/bogota_vertices.txt"));
 			for(String[] param : reader)
 			{
 				try
@@ -256,7 +262,7 @@ public class MVCModelo
 	{
 		return zonas.size();
 	}
-	
+
 	public EdgeWeightedGraph darGrafo()
 	{
 		return grafoCiudad;
@@ -272,10 +278,26 @@ public class MVCModelo
 	 * @param origen del viaje.
 	 * @param destino del viaje. 
 	 */
-	public int caminoCostoMinimo(Coordenadas origen, Coordenadas destino)
+	public Iterable<Edge> caminoCostoMinimo(Coordenadas origen, Coordenadas destino)
 	{
-		return 0; 
+		int s = -1;
+		for(NodoMallaVial temp: nodos)
+		{
+			if(temp.darCoordenada().coincide(origen.getLatitud(), origen.getLongitud()))
+				s = temp.darId();
+		}
+		DijkstraSPReq4 dijk = new DijkstraSPReq4(grafoCiudad, s);
+		s = -1;
+		for(NodoMallaVial temp: nodos)
+		{
+			if(temp.darCoordenada().coincide(destino.getLatitud(), destino.getLongitud()))
+				s = temp.darId();
+		}
+
+		return dijk.pathTo(s);
 	}
+
+
 
 	/**
 	 * Determinar los n vÃ©rtices con menor velocidad promedio en la ciudad de BogotÃ¡.
@@ -285,10 +307,30 @@ public class MVCModelo
 	 * @param longitud
 	 * @return lista con los vertices 
 	 */
-	public ListaSencillamenteEncadenada<NodoZona> menoVelocidadPromedio(int n)
+	public IndexMinPQ<Double> menorVelocidadPromedio()
 	{
-		ListaSencillamenteEncadenada<NodoZona> hello = new ListaSencillamenteEncadenada<NodoZona>(); 
-		return hello; 
+		IndexMinPQ<Double> respuesta = new IndexMinPQ<Double>(100000);
+		double[] velocidades = new double[nodos.size()];
+		int[] cant = new int[nodos.size()];
+		for(Edge temp :grafoCiudad.edges())
+		{
+			int e = temp.either();
+			velocidades[e] += temp.velocidad();
+			cant[e]++;
+
+			int w = temp.other(e);
+			velocidades[w] += temp.velocidad();
+			cant[w]++;
+		}
+		for(int i = 0; i < velocidades.length; i++)
+		{
+			if(cant[i] > 0)
+			{
+				double prom = velocidades[i]/cant[i];
+				respuesta.insert(i, prom);
+			}
+		}
+		return respuesta;
 	}
 
 	/**
@@ -299,9 +341,51 @@ public class MVCModelo
 	 * @return
 	 */
 
-	public int tiemposPrimerTrimestreDentroDeRango()
+	public PrimMST mstDist()
 	{
-		return 0; 
+		CC componentes = new CC(grafoCiudad);
+		int id = -1;
+		int comps = -1;
+		for(int i = 0; i < componentes.count(); i++)
+		{
+			if(componentes.size2(i) < comps)
+			{
+				id = i;
+				comps = componentes.size2(i);
+			}
+		}
+		int[] vertices = new int[comps]; 
+		int pos = 0;
+		for(int i = 0; i < grafoCiudad.V(); i ++)
+		{
+			if(componentes.id(i) == id)
+			{
+				vertices[pos] = i;
+				pos++;
+			}
+		}
+		EdgeWeightedGraph arbol = new EdgeWeightedGraph(grafoCiudad.V());
+		for(int i = vertices.length-1; i >= 0 ;i--)
+		{
+			for(Edge temp: grafoCiudad.adj(vertices[i]))
+			{
+				boolean anadir = false;
+				int uno = temp.either();
+				int otro = temp.other(uno);
+				for(int e = 0; e < i && !anadir; e++)
+				{
+					if(uno == e || otro == e)
+					{
+						anadir = true;
+					}
+				}
+				if(anadir)
+				{
+					arbol.addEdge(temp);
+				}
+			}
+		}
+		return new PrimMST(arbol); 
 	}
 
 	//Parte b
@@ -326,103 +410,103 @@ public class MVCModelo
 	public ListaSencillamenteEncadenada<NodoZona> MSTKruscal(int T)
 	{
 		return null;
-		
+
 	}
-//
-//	/**
-//	 * Buscar los tiempos de espera que tienen una desviaciÃ³n 
-//	 * estÃ¡ndar en un rango dado y que son del primer trimestre del 2018.
-//	 * @param minimo
-//	 * @param maximo
-//	 * @return
-//	 */
-//	public ListaSencillamenteEncadenada<Viaje> tiemposPrimerTrimestreConDesvEstandEnRango(double minimo, double maximo)
-//	{
-//		RedBlackBST<String, Viaje> arbol = new RedBlackBST<String, Viaje>();
-//		ListaSencillamenteEncadenada<Viaje> resp = new ListaSencillamenteEncadenada<Viaje>();
-//		for(Viaje temp : meses)
-//		{
-//			arbol.put(temp.darDesviacionTiempo() + "-" + temp.darIDOrigen() + "-" + temp.darIdDestino(), temp);
-//		}
-//		Iterator<Viaje> it = arbol.valuesInRange(minimo + "", maximo + "-999999999" + "-999999999");
-//		while(it.hasNext())
-//		{
-//			Viaje elemento = it.next();
-//			if(elemento.darHoraOMesODia() <= 3 && elemento.darHoraOMesODia() > 0)
-//			{
-//				resp.addLast(elemento);
-//			}
-//		}
-//		return resp;
-//	}
+	//
+	//	/**
+	//	 * Buscar los tiempos de espera que tienen una desviaciÃ³n 
+	//	 * estÃ¡ndar en un rango dado y que son del primer trimestre del 2018.
+	//	 * @param minimo
+	//	 * @param maximo
+	//	 * @return
+	//	 */
+	//	public ListaSencillamenteEncadenada<Viaje> tiemposPrimerTrimestreConDesvEstandEnRango(double minimo, double maximo)
+	//	{
+	//		RedBlackBST<String, Viaje> arbol = new RedBlackBST<String, Viaje>();
+	//		ListaSencillamenteEncadenada<Viaje> resp = new ListaSencillamenteEncadenada<Viaje>();
+	//		for(Viaje temp : meses)
+	//		{
+	//			arbol.put(temp.darDesviacionTiempo() + "-" + temp.darIDOrigen() + "-" + temp.darIdDestino(), temp);
+	//		}
+	//		Iterator<Viaje> it = arbol.valuesInRange(minimo + "", maximo + "-999999999" + "-999999999");
+	//		while(it.hasNext())
+	//		{
+	//			Viaje elemento = it.next();
+	//			if(elemento.darHoraOMesODia() <= 3 && elemento.darHoraOMesODia() > 0)
+	//			{
+	//				resp.addLast(elemento);
+	//			}
+	//		}
+	//		return resp;
+	//	}
 
 	//Parte C
-//	public ListaSencillamenteEncadenada<Viaje> darTiemposZonaOrigenHora(int idOrigen, int hora)
-//	{
-//		ListaSencillamenteEncadenada<Viaje> respuesta = new ListaSencillamenteEncadenada<Viaje>();
-//		TablaHashSeparateChaining<String, Viaje> hashTable = new TablaHashSeparateChaining<String, Viaje>();
-//		for(Viaje temp : horas)
-//		{
-//			hashTable.put(temp.darIDOrigen() + "-" + temp.darHoraOMesODia() + "-" + temp.darIdDestino(), temp);
-//		}
-//		Iterator<String> llaves = hashTable.keys();
-//		while(llaves.hasNext())
-//		{
-//			String cadena = llaves.next();
-//			if(cadena.startsWith(idOrigen + "-" + hora))
-//			{
-//				respuesta.addLast(hashTable.get(cadena));
-//			}
-//		}
-//		return respuesta;
-//	}
-//
-//	public Iterator<Viaje> darTiemposZonaDestRangoHoras(int idDestino, int horaMin, int horaMax)
-//	{
-//		RedBlackBST<String, Viaje> arbol = new RedBlackBST<String, Viaje>();
-//		for(Viaje temp : horas)
-//		{
-//			arbol.put(temp.darIdDestino() + "-" + temp.darHoraOMesODia() + "-" + temp.darIDOrigen(), temp);
-//		}
-//		Iterator<Viaje> resp = arbol.valuesInRange(idDestino + "-" + horaMin, idDestino + "-" + horaMax + "-999999");
-//		return resp;
-//	}
-//
-//	public MaxHeapCP<ZonaAux> zonasMasNodos()
-//	{
-//		MaxHeapCP<ZonaAux> respuesta = new MaxHeapCP<ZonaAux>();
-//		for(Zona laZona: zonas)
-//		{
-//			respuesta.agregar((ZonaAux)laZona);
-//		}
-//
-//		return respuesta;
-//	}
-//
-//	public ListaSencillamenteEncadenada<Pair<Integer, Double>> datosFaltantesPrimerSemestre()
-//	{
-//		int numDatosComp = 48*darNumZonas();
-//		MaxHeapCP<ZonaAux4> temp = new MaxHeapCP<ZonaAux4>();
-//		ListaSencillamenteEncadenada<Pair<Integer, Double>> resp = new ListaSencillamenteEncadenada<Pair<Integer,Double>>();
-//		for(Zona laZona: zonas)
-//		{
-//			temp.agregar((ZonaAux4)laZona);
-//		}
-//		int actual = 1;
-//		int conteo = 0;
-//		while(!temp.esVacia())
-//		{
-//			Zona laZona = temp.sacarMax();
-//			if(actual != laZona.getId())
-//			{
-//				double porcentaje = (1 - (conteo/numDatosComp))*100;
-//				Pair<Integer, Double> datos = new Pair<Integer, Double>(actual, porcentaje);
-//				resp.addLast(datos);
-//				actual++;
-//				conteo = 0;
-//			}
-//			conteo++;
-//		}
-//		return resp;
-//	}
+	//	public ListaSencillamenteEncadenada<Viaje> darTiemposZonaOrigenHora(int idOrigen, int hora)
+	//	{
+	//		ListaSencillamenteEncadenada<Viaje> respuesta = new ListaSencillamenteEncadenada<Viaje>();
+	//		TablaHashSeparateChaining<String, Viaje> hashTable = new TablaHashSeparateChaining<String, Viaje>();
+	//		for(Viaje temp : horas)
+	//		{
+	//			hashTable.put(temp.darIDOrigen() + "-" + temp.darHoraOMesODia() + "-" + temp.darIdDestino(), temp);
+	//		}
+	//		Iterator<String> llaves = hashTable.keys();
+	//		while(llaves.hasNext())
+	//		{
+	//			String cadena = llaves.next();
+	//			if(cadena.startsWith(idOrigen + "-" + hora))
+	//			{
+	//				respuesta.addLast(hashTable.get(cadena));
+	//			}
+	//		}
+	//		return respuesta;
+	//	}
+	//
+	//	public Iterator<Viaje> darTiemposZonaDestRangoHoras(int idDestino, int horaMin, int horaMax)
+	//	{
+	//		RedBlackBST<String, Viaje> arbol = new RedBlackBST<String, Viaje>();
+	//		for(Viaje temp : horas)
+	//		{
+	//			arbol.put(temp.darIdDestino() + "-" + temp.darHoraOMesODia() + "-" + temp.darIDOrigen(), temp);
+	//		}
+	//		Iterator<Viaje> resp = arbol.valuesInRange(idDestino + "-" + horaMin, idDestino + "-" + horaMax + "-999999");
+	//		return resp;
+	//	}
+	//
+	//	public MaxHeapCP<ZonaAux> zonasMasNodos()
+	//	{
+	//		MaxHeapCP<ZonaAux> respuesta = new MaxHeapCP<ZonaAux>();
+	//		for(Zona laZona: zonas)
+	//		{
+	//			respuesta.agregar((ZonaAux)laZona);
+	//		}
+	//
+	//		return respuesta;
+	//	}
+	//
+	//	public ListaSencillamenteEncadenada<Pair<Integer, Double>> datosFaltantesPrimerSemestre()
+	//	{
+	//		int numDatosComp = 48*darNumZonas();
+	//		MaxHeapCP<ZonaAux4> temp = new MaxHeapCP<ZonaAux4>();
+	//		ListaSencillamenteEncadenada<Pair<Integer, Double>> resp = new ListaSencillamenteEncadenada<Pair<Integer,Double>>();
+	//		for(Zona laZona: zonas)
+	//		{
+	//			temp.agregar((ZonaAux4)laZona);
+	//		}
+	//		int actual = 1;
+	//		int conteo = 0;
+	//		while(!temp.esVacia())
+	//		{
+	//			Zona laZona = temp.sacarMax();
+	//			if(actual != laZona.getId())
+	//			{
+	//				double porcentaje = (1 - (conteo/numDatosComp))*100;
+	//				Pair<Integer, Double> datos = new Pair<Integer, Double>(actual, porcentaje);
+	//				resp.addLast(datos);
+	//				actual++;
+	//				conteo = 0;
+	//			}
+	//			conteo++;
+	//		}
+	//		return resp;
+	//	}
 }
