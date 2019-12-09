@@ -5,10 +5,15 @@ import java.util.Scanner;
 import com.sun.tracing.dtrace.ModuleName;
 
 import javafx.util.Pair;
+import model.algoritmos_grafos_alg4.DijkstraSPReq4;
 import model.data_structures.IEstructura;
 import model.data_structures.ListaSencillamenteEncadenada;
 import model.data_structures.MaxHeapCP;
+import model.graph_alg4.Edge;
+import model.graph_alg4.Stack;
+import model.logic.Coordenadas;
 import model.logic.MVCModelo;
+import model.logic.NodoMallaVial;
 import model.logic.NodoZona;
 import model.logic.Viaje;
 import model.logic.ZonaAux;
@@ -23,7 +28,7 @@ public class Controller {
 	private MVCView view;
 
 	private boolean cargaRealizada;
-	
+
 	public static final int N = 20;
 
 
@@ -126,16 +131,69 @@ public class Controller {
 				{
 					if(cargaRealizada)
 					{
-						view.pedirLimiteBajo();
+						System.out.println("Ingrese la latitud de origen:");
 						dato = lector.nextLine();
-						double low = Double.parseDouble(dato);
-						
-						view.pedirLimiteAlto();
+						double latitudOr = Double.parseDouble(dato);
+
+						System.out.println("Ingrese la longitud de origen:");
 						dato = lector.nextLine();
-						double high = Double.parseDouble(dato);
+						double longitudOr = Double.parseDouble(dato);
+
+						System.out.println("Ingrese la latitud de origen:");
+						dato = lector.nextLine();
+						double latitudDes = Double.parseDouble(dato);
+
+						System.out.println("Ingrese la longitud de origen:");
+						dato = lector.nextLine();
+						double longitudDes = Double.parseDouble(dato);
+
+						Coordenadas origen = new Coordenadas(longitudOr, latitudOr);
+						Coordenadas destino = new Coordenadas(longitudDes, latitudDes);
+
+						DijkstraSPReq4 resultados = modelo.caminoCostoMinimo(origen, destino);
+						int s = -1;
+						for(NodoMallaVial temp: modelo.darNodos())
+						{
+							if(temp.darCoordenada().coincide(destino.getLatitud(), destino.getLongitud()))
+								s = temp.darId();
+						}
+						Stack<Edge> pila = resultados.pathTo(s);
+						Stack<Edge> inversa = new Stack<>();
+						int tam = pila.size() > 0?pila.size()+1:0;
+						System.out.println("El total de vertices en el camino es de " + tam);
+						if(!pila.isEmpty())
+						{
+							inversa.push(pila.pop());
+						}
+						System.out.println("Los nodos en el camino son");
+						for(NodoMallaVial temp: modelo.darNodos())
+						{
+							if(temp.darId() == s)
+								System.out.println(temp);
+						}
+						for(Edge temp: inversa)
+						{
+							s = temp.other(s);
+							for(NodoMallaVial nodo: modelo.darNodos())
+							{
+								if(nodo.darId() == s)
+									System.out.println(nodo);
+							}
+						}
+						pila = resultados.pathTo(s);
+						System.out.println("Ruta a seguir");
+						double tiempo = 0;
+						double distancia = 0;
+						for(Edge temp: pila)
+						{
+							System.out.println(temp);
+							tiempo += temp.tiempoViaje();
+							distancia += temp.costoDistanciaHarversine();
+						}
 						
-						ListaSencillamenteEncadenada<Viaje> lista = modelo.tiemposPrimerTrimestreDentroDeRango(low, high);
-						view.darInfoViajes(lista);
+						System.out.println("El tiempo minimo estimado es:" + tiempo);
+						System.out.println("La distancia del recorrido es:" + distancia);
+						
 					}
 					else
 					{
@@ -168,11 +226,11 @@ public class Controller {
 						view.solicitarZona();
 						dato = lector.nextLine();
 						int zonaOrigen = Integer.parseInt(dato);
-						
+
 						view.solicitarHora();
 						dato = lector.nextLine();
 						int hora = Integer.parseInt(dato);
-						
+
 						view.impTiemposZonaOrigen(modelo.darTiemposZonaOrigenHora(zonaOrigen, hora));
 					}
 					else
@@ -194,15 +252,15 @@ public class Controller {
 						view.solicitarZona();
 						dato = lector.nextLine();
 						int zona = Integer.parseInt(dato);
-						
+
 						view.pedirLimiteBajo();
 						dato = lector.nextLine();
 						int low = Integer.parseInt(dato);
-						
+
 						view.pedirLimiteAlto();
 						dato = lector.nextLine();
 						int high = Integer.parseInt(dato);
-						
+
 						view.impTiemposZonaDestino(modelo.darTiemposZonaDestRangoHoras(zona, low, high));
 					}
 					else

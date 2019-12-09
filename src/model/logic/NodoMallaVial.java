@@ -30,4 +30,9 @@ public class NodoMallaVial implements Comparable<NodoMallaVial>
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+	public String toString()
+	{
+		return id + " " + coordenada;
+	}
 }

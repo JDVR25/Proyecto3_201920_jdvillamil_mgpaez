@@ -264,6 +264,11 @@ public class MVCModelo
 	{
 		return zonas.size();
 	}
+	
+	public ListaSencillamenteEncadenada<NodoMallaVial> darNodos()
+	{
+		return nodos;
+	}
 
 	public EdgeWeightedGraph darGrafo()
 	{
@@ -280,7 +285,7 @@ public class MVCModelo
 	 * @param origen del viaje.
 	 * @param destino del viaje. 
 	 */
-	public Iterable<Edge> caminoCostoMinimo(Coordenadas origen, Coordenadas destino)
+	public DijkstraSPReq4 caminoCostoMinimo(Coordenadas origen, Coordenadas destino)
 	{
 		int s = -1;
 		for(NodoMallaVial temp: nodos)
@@ -289,14 +294,9 @@ public class MVCModelo
 				s = temp.darId();
 		}
 		DijkstraSPReq4 dijk = new DijkstraSPReq4(grafoCiudad, s);
-		s = -1;
-		for(NodoMallaVial temp: nodos)
-		{
-			if(temp.darCoordenada().coincide(destino.getLatitud(), destino.getLongitud()))
-				s = temp.darId();
-		}
+		
 
-		return dijk.pathTo(s);
+		return dijk;
 	}
 
 
