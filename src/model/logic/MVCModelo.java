@@ -413,6 +413,12 @@ public class MVCModelo
 		return null;
 
 	}
+	
+	public void temporal()
+	{
+		EdgeWeightedGraph nuevo = new EdgeWeightedGraph(1160);
+		
+	}
 	//
 	//	/**
 	//	 * Buscar los tiempos de espera que tienen una desviaciÃ³n 
