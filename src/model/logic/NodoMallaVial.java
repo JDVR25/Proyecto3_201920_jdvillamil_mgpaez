@@ -5,6 +5,8 @@ public class NodoMallaVial implements Comparable<NodoMallaVial>
 	private int id;
 	
 	private Coordenadas coordenada;
+	
+	public int movement_id;
 
 	public NodoMallaVial(int pId, double pLongitud, double pLatitud)
 	{

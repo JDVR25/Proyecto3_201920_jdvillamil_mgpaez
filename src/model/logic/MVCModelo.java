@@ -264,7 +264,7 @@ public class MVCModelo
 	{
 		return zonas.size();
 	}
-	
+
 	public ListaSencillamenteEncadenada<NodoMallaVial> darNodos()
 	{
 		return nodos;
@@ -294,7 +294,7 @@ public class MVCModelo
 				s = temp.darId();
 		}
 		DijkstraSPReq4 dijk = new DijkstraSPReq4(grafoCiudad, s);
-		
+
 
 		return dijk;
 	}
@@ -418,7 +418,7 @@ public class MVCModelo
 
 		return dijk.pathTo(s);
 	}
-	
+
 	/**
 	 * A partir de las coordenadas de una localización 
 	 * geográfica de la ciudad de origen, indique cuáles vértices son alcanzables para un tiempo T
@@ -432,7 +432,7 @@ public class MVCModelo
 		int numeroVertices = 0;
 		int tiempoElegido = T; 
 		double timeTaken = 0.0; 
-		
+
 		for(int i= 0; i < grafoCiudad.E(); i++)
 		{
 			if(grafoCiudad.edges().iterator().hasNext())
@@ -443,10 +443,10 @@ public class MVCModelo
 				{
 					numeroVertices++; 
 				}
-				
+
 			}
 		}
-		
+
 		return numeroVertices;
 	}
 
@@ -507,11 +507,81 @@ public class MVCModelo
 	//Parte C
 	//Requerimientos 10,11 y 12 
 	// Hecho por Juan David Villamil y Gabriela Páez
-	
-	public void nuevoGrafoSimpleNoDirijido()
+
+	public EdgeWeightedGraph nuevoGrafoSimpleNoDirijido()
 	{
-		
+		EdgeWeightedGraph nuevo = new EdgeWeightedGraph(1160);
+		boolean[] markedGen = new boolean[1160];
+		for(NodoMallaVial temp: nodos)
+		{
+			boolean[] marked = new boolean[1160];
+			int id = temp.darId();
+			Iterable<Edge> it = grafoCiudad.adj(id);
+			int mov_id = temp.movement_id;
+			if(!markedGen[mov_id])
+			{
+				markedGen[mov_id] = true;
+				for(int d = 0; d < markedGen.length; d++)
+				{
+					marked[d]= markedGen[d];
+				}
+				for(Edge arco: it)
+				{
+					int otro = arco.other(id);
+					int otroMov = 0;
+					for(NodoMallaVial nodo: nodos)
+					{
+						if(nodo.darId() == otro)
+						{
+							otroMov = nodo.movement_id;
+							break;
+						}
+					}
+					if(!marked[otroMov])
+					{
+						marked[otroMov]= true;
+						double sum = 0;
+						double count = 0;
+						for(int g = 0; g < 7; g++)
+						{
+							Viaje viaj = consultarViajeDia(g, mov_id, otroMov);
+							if (viaj != null)
+							{
+								sum += viaj.darTiempoViaje();
+								count++;
+							}
+							viaj = consultarViajeDia(g, otroMov, mov_id);
+							if (viaj != null)
+							{
+								sum += viaj.darTiempoViaje();
+								count++;
+							}
+						}
+						double weight = count > 0?sum/count:0;
+						Edge nuevoA = new Edge(mov_id, otroMov, weight);
+						nuevo.addEdge(nuevoA);
+					}
+				}
+			}
+		}
+		return nuevo;
 	}
-	
-	
+
+	public Viaje consultarViajeDia(int dia, int idOrigen, int idDestino)
+	{
+		Viaje respuesta = null;
+		Iterator<Viaje> iterador = dias.iterator();
+		boolean found = false;
+		while(iterador.hasNext() && !found)
+		{
+			Viaje temp = iterador.next();
+
+			if(temp.darHoraOMesODia() == dia && temp.darIDOrigen() == idOrigen && temp.darIdDestino() == idDestino)
+			{
+				found = true;
+				respuesta = temp;
+			}
+		}
+		return respuesta;
+	}
 }
